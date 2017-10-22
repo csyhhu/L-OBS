@@ -14,3 +14,4 @@ This repo contains:
     Just run lenet300-100/LOBS.py to prune lenet300-100
 
 2. A utility code folder, which provides APIs for any network model and dataset. It is under maintain.
+3. To deploy L-OBS on large-scale dataset, multiprocessor-version codes will be released later.

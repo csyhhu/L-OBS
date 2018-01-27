@@ -153,7 +153,11 @@ def edge_cut(hessian_inverse_path, w_layer_path, b_layer_path, prune_save_path, 
 		if prune_count == max_pruned_num:
 			print '[%s] Have prune required weights' %datetime.now()
 			break
-	print '[%s] Prune Finish. compression ratio: %d' %(datetime.now(), 1 - float(np.count_nonzero(w_layer) / float(w_layer.size)))
+			
+	# print 'Non-zeros: %d' %np.count_nonzero(w_layer)
+	# print 'weights number: %d' %w_layer.size
+	print '[%s] Prune Finish. compression ratio: %.3f' \
+		%(datetime.now(), 1 - (float(np.count_nonzero(w_layer)) / w_layer.size))
 
 	if not os.path.exists(prune_save_path):
 		os.makedirs(prune_save_path)
@@ -169,14 +173,14 @@ y = tf.placeholder("float", [None, n_classes])
 # tf weights and biases
 # The pretrain model weights and biases is trained by me, you can use these parameters or train it by yourselves.
 weights = {
-	'fc1': tf.Variable(np.load('original_parameters/w_layer1.npy').astype('float32')),
-	'fc2': tf.Variable(np.load('original_parameters/w_layer2.npy').astype('float32')),
-	'fc3': tf.Variable(np.load('original_parameters/w_layer3.npy').astype('float32'))
+	'fc1': tf.Variable(np.load('original_parameters/fc1.weight.npy').astype('float32')),
+	'fc2': tf.Variable(np.load('original_parameters/fc2.weight.npy').astype('float32')),
+	'fc3': tf.Variable(np.load('original_parameters/fc3.weight.npy').astype('float32'))
 }
 biases = {
-	'fc1': tf.Variable(np.load('original_parameters/b_layer1.npy').astype('float32')),
-	'fc2': tf.Variable(np.load('original_parameters/b_layer2.npy').astype('float32')),
-	'fc3': tf.Variable(np.load('original_parameters/b_layer3.npy').astype('float32'))
+	'fc1': tf.Variable(np.load('original_parameters/fc1.bias.npy').astype('float32')),
+	'fc2': tf.Variable(np.load('original_parameters/fc2.bias.npy').astype('float32')),
+	'fc3': tf.Variable(np.load('original_parameters/fc3.bias.npy').astype('float32'))
 }
 
 # Construct model
@@ -210,37 +214,38 @@ with tf.Session() as sess:
 
 print '[%s] Layer inputs generate finish.' %datetime.now()
 
+
 # Step 2: Generate Hessian inverse
 generate_hessian_inverse_fc(hessian_inverse_path='hessian_inverse/fc1', \
-							w_layer_path = 'original_parameters/w_layer1.npy', \
+							w_layer_path = 'original_parameters/fc1.weight.npy', \
 							layer_input_train_dir = 'layer_inputs/fc1')
 
 generate_hessian_inverse_fc(hessian_inverse_path='hessian_inverse/fc2', \
-							w_layer_path = 'original_parameters/w_layer2.npy', \
+							w_layer_path = 'original_parameters/fc2.weight.npy', \
 							layer_input_train_dir = 'layer_inputs/fc2')
 
 generate_hessian_inverse_fc(hessian_inverse_path='hessian_inverse/fc3', \
-							w_layer_path = 'original_parameters/w_layer3.npy', \
+							w_layer_path = 'original_parameters/fc3.weight.npy', \
 							layer_input_train_dir = 'layer_inputs/fc3')
 
 # Step 3: Edge cut
-edge_cut(hessian_inverse_path='hessian_inverse/fc1.npy', \
-		 w_layer_path='original_parameters/w_layer1.npy', \
-		 b_layer_path='original_parameters/b_layer1.npy', \
+edge_cut(hessian_inverse_path='hessian_inverse/layer1.npy', \
+		 w_layer_path='original_parameters/fc1.weight.npy', \
+		 b_layer_path='original_parameters/fc1.bias.npy', \
 		 prune_save_path = 'pruned_parameters/fc1', \
-		 cut_ratio=0.8)
+		 cut_ratio=0.3)
 
-edge_cut(hessian_inverse_path='hessian_inverse/fc2.npy', \
-		 w_layer_path='original_parameters/w_layer2.npy', \
-		 b_layer_path='original_parameters/b_layer2.npy', \
+edge_cut(hessian_inverse_path='hessian_inverse/layer2.npy', \
+		 w_layer_path='original_parameters/fc2.weight.npy', \
+		 b_layer_path='original_parameters/fc2.bias.npy', \
  		 prune_save_path = 'pruned_parameters/fc2', \
-		 cut_ratio=0.8)
+		 cut_ratio=0.7)
 
-edge_cut(hessian_inverse_path='hessian_inverse/fc3.npy', \
-		 w_layer_path='original_parameters/w_layer3.npy', \
-		 b_layer_path='original_parameters/b_layer3.npy', \
+edge_cut(hessian_inverse_path='hessian_inverse/layer3.npy', \
+		 w_layer_path='original_parameters/fc3.weight.npy', \
+		 b_layer_path='original_parameters/fc3.bias.npy', \
 		 prune_save_path = 'pruned_parameters/fc3', \
-		 cut_ratio=0.8)
+		 cut_ratio=0.93)
 
 # Step 4: test accuracy
 # Launch the graph

@@ -180,10 +180,10 @@ def adjust_mean_var(net, train_loader, train_file, n_batch_used = 500, use_cuda 
 
 	criterion = nn.CrossEntropyLoss()
 
-	model.train()
+	net.train()
 
 	# end = time.time()
-	for i, (input, target) in enumerate(val_loader):
+	for i, (input, target) in enumerate(train_loader):
 		if use_cuda:
 			target = target.cuda()
 			input = input.cuda()
@@ -191,7 +191,7 @@ def adjust_mean_var(net, train_loader, train_file, n_batch_used = 500, use_cuda 
 		target_var = torch.autograd.Variable(target, volatile=True)
 
 		# compute output
-		output = model(input_var)
+		output = net(input_var)
 
 		loss = criterion(output, target_var)
 		# measure accuracy and record loss

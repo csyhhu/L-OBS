@@ -261,17 +261,18 @@ def generate_hessian_inv_Woodbury(net, trainloader, layer_name, layer_type, \
                 layer_input_np = layer_input.permute(0, 2, 3, 1).cpu().numpy()
                 layer_kernel = net.module.layer_kernel[layer_name]
                 layer_stride = net.module.layer_stride[layer_name] * stride_factor
-                input_holder = tf.placeholder(dtype=tf.float32, shape=input_shape)
+                layer_input_holder = tf.placeholder(dtype=tf.float32, shape=layer_input_np.shape)
 
                 get_patches_op = \
-                    tf.extract_image_patches(images = input_holder,
+                    tf.extract_image_patches(images = layer_input_holder,
                                        ksizes = [1, layer_kernel, layer_kernel,1],
                                        strides = [1, layer_stride, layer_stride, 1],
                                        rates = [1, 1, 1, 1],
                                        padding = 'SAME')
                 # For a convolution input, extracted pathes would be: [1, 9, 9, 2304]
-                dataset_size = n_batch_used * get_hessian_op.get_shape()[1] * get_hessian_op.get_shape()[2]
-                input_dimension = get_hessian_op.get_shape()[3]
+                dataset_size = n_batch_used * int(get_patches_op.get_shape()[0]) * \
+                    int(get_patches_op.get_shape()[1]) * int(get_patches_op.get_shape()[2])
+                input_dimension = get_patches_op.get_shape()[3]
                 if layer_type == 'C':
                     # In convolution layer, input dimension should be added one for bias term
                     hessian_inverse = 1000000 * np.eye(input_dimension + 1)
@@ -326,9 +327,9 @@ def generate_hessian_inv_Woodbury(net, trainloader, layer_name, layer_type, \
                     for m in range(this_patch.shape[2]):
                         this_input = this_patch[i][j][m]
                         if layer_type == 'C':
-                            wb = np.concatenate([this_layer_input[i].reshape(1,-1), np.array([1.0]).reshape(1,-1)], axis = 1) # [1, 2305]
+                            wb = np.concatenate([this_input.reshape(1,-1), np.array([1.0]).reshape(1,-1)], axis = 1) # [1, 2305]
                         else:
-                            wb = this_patch # [1, 2304]
+                            wb = this_input.reshape(1, -1) # [1, 2304]
                         if use_tf_backend:
                             hessian_inverse = sess.run(Woodbury_hessian_inv_op, feed_dict={
                                 hessian_inv_holder: hessian_inverse,

@@ -19,9 +19,7 @@ For prunning a network, you need to firstly prepare the PyTorch model descriptio
 
 Currently I have uploaded modified models for AlexNet, VGG16BN, ResNet, more models will be uploaded latter.
 
-Then you need to download the pretrained model and put it in `./AlexNet`folder, for example:
-<center>`wget https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth `</center>
-Download link can be found in `models/AlexNet.py`
+Then you need to download the pretrained model and put it in `./AlexNet`folder, download link can be found in `models/AlexNet.py`
 
 Generate Hessian inverse using `generate-Hessian-inv-AlexNet.py`
 
@@ -34,6 +32,8 @@ Validate the network using `validate-AlexNet.py`
 
 - If your GPU/CPU memory is limited, you can set a smaller `hessian_batch_size` and larger `stride_factor`in `generate-Hessian-Inv-AlexNet.py` 
 
+- Before you use the code, an ImageNet dataset should be prepared. Pay attention that PyTorch uses a different validation folder structure. You need to refine the val folder under [this](https://github.com/pytorch/examples/tree/master/imagenet).
+
 ## To be continued
-- [ ] Example codes for VGG16, ResNet, GoogleNet
+- [ ] Example codes for L-OBS in VGG16, ResNet, GoogleNet
 - [ ] Experiment details

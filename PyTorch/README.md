@@ -1,7 +1,7 @@
 # L-OBS in PyTorch
 
 ## Introduction
-This is an implementtaion for L-OBS using PyTorch. The reason why we transfer it from TensorFlow to PyTorch is that [PyTorch model zoo](pytorch.org/docs/master/torchvision/models.html) provides official and easy-attain pretrained models.
+This is an implementtaion for L-OBS using PyTorch. The reason why we transfer it from TensorFlow to PyTorch is that [PyTorch model zoo](https://pytorch.org/docs/master/torchvision/models.html) provides official and easy-attain pretrained models.
 
 ## Requirement
 Experiments are conducted under:
@@ -19,7 +19,7 @@ For prunning a network, you need to firstly prepare the PyTorch model descriptio
 
 Currently I have uploaded modified models for AlexNet, VGG16BN, ResNet, more models will be uploaded latter.
 
-Then you need to download the pretrained model and put it in `./AlexNet`folder, download link can be found in `models/AlexNet.py`
+Then you need to download the pretrained model and put it in `./AlexNet`folder, ownload link can be found in `models/AlexNet.py`
 
 Generate Hessian inverse using `generate-Hessian-inv-AlexNet.py`
 

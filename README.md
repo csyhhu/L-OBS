@@ -1,7 +1,12 @@
 # Layer-wise Optimal Brain Surgeon
-This repo is for Layer-wise Optimal Brain Surgeon (L-OBS), which will appear in NIPS 2017. Codes are based on [Tensorflow](https://www.tensorflow.org/) r1.0+
+This repo is for Layer-wise Optimal Brain Surgeon (L-OBS), which will appear in NIPS 2017. Codes are based on [Tensorflow](https://www.tensorflow.org/) r1.0+ and [PyTorch](https://pytorch.org/previous-versions/) v0.3.0
 
 Paper link: [Learning to Prune Deep Neural Networks via Layer-wise Optimal Brain Surgeon](https://arxiv.org/abs/1705.07565)
+
+## News
+PyTorch version of L-OBS is published in `PyTorch/`. We optimize the Hessian calculation process in speed and memory. Please refer to it for more details and experiments. 
+
+TensorFlow version will be updated latter.
 
 ## This repo contains:
 
@@ -53,10 +58,6 @@ Paper link: [Learning to Prune Deep Neural Networks via Layer-wise Optimal Brain
     we are making our best to provide you user-friendly interface for conducting experiments on L-OBS. But currently,
     if you want to conduct experiments on other models, please first get familiar with the APIs provided in this folder.
     Then you can easily deploy L-OBS on other models.
-
-
-3. A utility code folder, which provides APIs for any network model and dataset. It is under maintain.
-4. To deploy L-OBS on large-scale dataset efficiently, multiprocessor-version codes will be released later.
 
 
 ## Support

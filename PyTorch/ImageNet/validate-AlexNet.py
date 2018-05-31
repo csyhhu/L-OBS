@@ -16,7 +16,7 @@ from datetime import datetime
 use_cuda = torch.cuda.is_available()
 # -------------------------------------------- User Config ------------------------------------
 # Specify parameters path
-pruned_weight_root = './AlexNet/pruned_weight'
+pruned_weight_root = './AlexNet/pruned_weight_100k'
 pretrain_model_path = './AlexNet/alexnet-owt-4df8aa71.pth'
 n_validate_batch = 100 # Number of batches used for validation
 validate_batch_size = 50 # Batch size of validation
@@ -28,7 +28,7 @@ prune_ratio = {
     'features.10': 35,
     'classifier.1': 10,
     'classifier.4': 10,
-    'classifier.6': 25
+    'classifier.6': 35
 }
 # -------------------------------------------- User Config ------------------------------------
 net = AlexNet()
@@ -55,7 +55,6 @@ for layer_name, CR in prune_ratio.items():
 overall_CR = float(total_nnz) / float(total_nelements)
 print ('Overall compression rate (nnz/total): %f' %overall_CR)
 net.load_state_dict(param)
-
 '''
 print ('[%s] Begin adjust finish. Now saving parameters' %(datetime.now()))
 adjust_mean_var(net, train_loader, None)

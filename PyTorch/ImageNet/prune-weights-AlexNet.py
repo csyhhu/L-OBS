@@ -18,6 +18,9 @@ hessian_inverse_root = './AlexNet/hessian_inv_100k' # Specify your hessian inver
 save_root = './AlexNet/pruned_weight_100k' # Specify your sparse parameters save root
 if not os.path.exists(save_root):
 	os.makedirs(save_root)
+mask_root = './AlexNet/mask' # Specify your mask matrix storing root
+if not os.path.exists(mask_root):
+	os.makedirs(mask_root)
 rank_root = './AlexNet/sensitivity_100k' # Specify your parameter rank file save root
 if not os.path.exists(rank_root):
 	os.makedirs(rank_root)
@@ -39,8 +42,8 @@ pretrain = torch.load(pretrain_model_path)
 
 for layer_idx, layer_name in enumerate(layer_name_list):
 
-	# if os.path.exists('%s/CR_5/%s.weight.npy' %(save_root, layer_name)):
-	# 	continue
+	if os.path.exists('%s/CR_5/%s.weight.npy' %(save_root, layer_name)):
+		continue
 
 	print ('[%s] %s' %(datetime.now(), layer_name))
 	# Specify layer type, C for convolution, F for fully-connected
@@ -96,28 +99,41 @@ for layer_idx, layer_name in enumerate(layer_name_list):
 			* hessian_inv[:, prune_row_idx]
 		wb[:, prune_col_idx] += delta_W
 		mask[prune_row_idx, prune_col_idx] = 0
-		wb = np.multiply(wb, mask)
+		# wb = np.multiply(wb, mask)
 
 		if i % save_interval == 0 and i / save_interval >= 4:
-
+			wb = np.multiply(wb, mask)
 			CR = 100 - (i / save_interval) * 5
 			print('[%s] Now save pruned weights of CR %d' %(datetime.now(), CR))
 
-			# Save pruned weights
+			# Save pruned weights and mask matrix
 			if not os.path.exists('%s/CR_%s' %(save_root, CR)):
 				os.makedirs('%s/CR_%s' %(save_root, CR))
+			if not os.path.exists('%s/CR_%s' %(mask_root, CR)):
+				os.makedirs('%s/CR_%s' %(mask_root, CR))
 			
 			if layer_type == 'F':
 				np.save('%s/CR_%s/%s.weight' %(save_root, CR, layer_name), wb[0: -1, :].transpose())
 				np.save('%s/CR_%s/%s.bias' %(save_root, CR, layer_name), wb[-1, :].transpose())
+				
+				np.save('%s/CR_%s/%s.weight' %(mask_root, CR, layer_name), mask[0: -1, :].transpose())
+				np.save('%s/CR_%s/%s.bias' %(mask_root, CR, layer_name), mask[-1, :].transpose())
 			elif layer_type == 'C':
 				kernel = fold_weights(wb[0 :-1, :], kernel_shape)
 				bias = wb[-1, :]
 				np.save('%s/CR_%s/%s.weight' %(save_root, CR, layer_name), kernel)
 				np.save('%s/CR_%s/%s.bias' %(save_root, CR, layer_name), bias)
+
+				mask_kernel = fold_weights(mask[0 :-1, :], kernel_shape)
+				mask_bias = mask[-1, :]
+				np.save('%s/CR_%s/%s.weight' %(mask_root, CR, layer_name), mask_kernel)
+				np.save('%s/CR_%s/%s.bias' %(mask_root, CR, layer_name), mask_bias)
 			elif layer_type == 'R':
 				kernel = fold_weights(wb, kernel_shape)
 				np.save('%s/CR_%s/%s.weight' %(save_root, CR, layer_name), kernel)
+
+				mask_kernel = fold_weights(mask, kernel_shape)
+				np.save('%s/CR_%s/%s.weight' %(mask_root, CR, layer_name), mask_kernel)
 			if CR == 5:
 				break
 	

@@ -1,7 +1,7 @@
 # L-OBS in PyTorch
 
 ## Introduction
-This is an implementtaion for L-OBS using PyTorch. The reason why we transfer it from TensorFlow to PyTorch is that [PyTorch model zoo](https://pytorch.org/docs/master/torchvision/models.html) provides official and easy-attain pretrained models.
+This is an implementtaion for L-OBS using PyTorch. The reason why we transfer it from TensorFlow to PyTorch is that [PyTorch model zoo]() provides official and easy-attain pretrained models.
 
 ## Requirement
 Experiments are conducted under:

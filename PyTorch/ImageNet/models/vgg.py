@@ -23,7 +23,7 @@ model_urls = {
 
 class VGG(nn.Module):
 
-    def __init__(self, features, num_classes=1000, init_weights=True):
+    def __init__(self, features, num_classes=1000, init_weights=False):
         super(VGG, self).__init__()
         self.features = features
         self.classifier = nn.Sequential(
@@ -37,6 +37,7 @@ class VGG(nn.Module):
         )
         if init_weights:
             self._initialize_weights()
+            # pass
 
     def forward(self, x):
         x = self.features(x)

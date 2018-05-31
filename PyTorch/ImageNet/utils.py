@@ -200,7 +200,7 @@ def adjust_mean_var(net, train_loader, train_file, n_batch_used = 500, use_cuda 
 		top1.update(prec1[0], input.size(0))
 		top5.update(prec5[0], input.size(0))
 
-		if (i+1) % monitor_freq == 0:
+		if (i) % monitor_freq == 0:
 			print('Train: [{0}/{1}]\t'
 				  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
 				  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
@@ -211,7 +211,7 @@ def adjust_mean_var(net, train_loader, train_file, n_batch_used = 500, use_cuda 
 				train_file.write('[%d/%d] Loss: %f, Prec@1: %f, Prec@5: %f\n' %\
 					(i, n_batch_used, losses.avg, top1.avg, top5.avg))
 		
-		if (i+1) == n_batch_used:
+		if (i) == n_batch_used:
 			break 
 
 

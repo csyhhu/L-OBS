@@ -34,6 +34,9 @@ Validate the network using `validate-AlexNet.py`
 
 - Before you use the code, an ImageNet dataset should be prepared. Pay attention that PyTorch uses a different validation folder structure. You need to refine the val folder under [this](https://github.com/pytorch/examples/tree/master/imagenet).
 
+- When using L-OBS in networks containing batch normalization (bn) layers, an adjust in bn layers' mean and variance should be performed (as example in `validate-VGG16BN.py` and `validate-ResNet.py`. As pruning is conducted layer-wisely, the distribution in each layer changes. 
+
 ## To be continued
-- [ ] Example codes for L-OBS in VGG16, ResNet, GoogleNet
+- [x] Example codes for L-OBS in VGG16, ResNet
+- [ ]  Example codes for GoogleNet (Inception)
 - [ ] Experiment details

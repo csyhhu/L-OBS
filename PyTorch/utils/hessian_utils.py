@@ -38,13 +38,13 @@ def create_res_hessian_computing_tf_graph(input_shape, layer_kernel, layer_strid
                                        strides = [1, layer_stride, layer_stride, 1],
                                        rates = [1, 1, 1, 1],
                                        padding = 'SAME')
-    print 'Patches shape: %s' %patches.get_shape()
+    print ('Patches shape: %s' %patches.get_shape())
     a = tf.expand_dims(patches, axis=-1)
     b = tf.expand_dims(patches, axis=3)
     outprod = tf.multiply(a, b)
     # print 'outprod shape: %s' %outprod.get_shape()
     get_hessian_op = tf.reduce_mean(outprod, axis=[0, 1, 2])
-    print 'Hessian shape: %s' % get_hessian_op.get_shape()
+    print ('Hessian shape: %s' % get_hessian_op.get_shape())
     return input_holder, get_hessian_op
 
 
@@ -62,7 +62,7 @@ def create_fc_hessian_computing_tf_graph(input_shape):
     outprod = tf.matmul(vect_w_b, vect_w_b, transpose_b=True)
     # print 'outprod shape: %s' %outprod.get_shape()
     get_hessian_op = tf.reduce_mean(outprod, axis=0)
-    print 'Hessian shape: %s' % get_hessian_op.get_shape()
+    print ('Hessian shape: %s' % get_hessian_op.get_shape())
     return input_holder, get_hessian_op
 
 
@@ -78,7 +78,7 @@ def create_conv_hessian_computing_tf_graph(input_shape, layer_kernel, layer_stri
                                        strides = [1, layer_stride, layer_stride, 1],
                                        rates = [1, 1, 1, 1],
                                        padding = 'SAME')
-    print 'Patches shape: %s' %patches.get_shape()
+    print ('Patches shape: %s' %patches.get_shape())
     vect_w_b = tf.concat([patches, tf.ones([tf.shape(patches)[0], \
                 tf.shape(patches)[1], tf.shape(patches)[2], 1])], axis=3)
     a = tf.expand_dims(vect_w_b, axis=-1)
@@ -86,7 +86,7 @@ def create_conv_hessian_computing_tf_graph(input_shape, layer_kernel, layer_stri
     outprod = tf.multiply(a, b)
     # print 'outprod shape: %s' %outprod.get_shape()
     get_hessian_op = tf.reduce_mean(outprod, axis=[0, 1, 2])
-    print 'Hessian shape: %s' % get_hessian_op.get_shape()
+    print ('Hessian shape: %s' % get_hessian_op.get_shape())
     return input_holder, get_hessian_op
 
 
@@ -135,7 +135,8 @@ def generate_hessian(net, trainloader, layer_name, layer_type, \
     Output:
         Hessian matrix
     """ 
-
+    if n_batch_used == -1:
+        n_batch_used = len(trainloader)
     freq_moniter = (n_batch_used * batch_size) / 50 # Total 50 times of printing information
 
     config = tf.ConfigProto()
@@ -154,7 +155,7 @@ def generate_hessian(net, trainloader, layer_name, layer_type, \
 
         # In the begining, construct hessian graph
         if batch_idx == 0:
-            print '[%s] Now construct generate hessian op for layer %s' %(datetime.now(), layer_name)
+            print ('[%s] Now construct generate hessian op for layer %s' %(datetime.now(), layer_name))
             # res layer
             if layer_type == 'R':
                 # Because PyTorch's data format (N,C,W,H) is different from tensorflow (N,W,H,C)
@@ -166,12 +167,12 @@ def generate_hessian(net, trainloader, layer_name, layer_type, \
                                                         net.module.layer_stride[layer_name] * stride_factor)
                 # check whether dimension is right
                 hessian_shape = int(generate_hessian_op.get_shape()[0])
-                print 'Hessian shape: %d' %hessian_shape
+                print ('Hessian shape: %d' %hessian_shape)
                 weight_shape = net.state_dict()['module.%s.weight' %layer_name].size()
                 # print ('Kernel shape: %s' %weight_shape)
                 # print weight_shape
                 kernel_unfold_shape = int(weight_shape[1]) * int(weight_shape[2]) * int(weight_shape[3])
-                print 'Kernel unfold shape: %d' %kernel_unfold_shape
+                print ('Kernel unfold shape: %d' %kernel_unfold_shape)
                 assert(hessian_shape == kernel_unfold_shape)
             # linear layer
             elif layer_type == 'F':
@@ -180,9 +181,9 @@ def generate_hessian(net, trainloader, layer_name, layer_type, \
                     create_fc_hessian_computing_tf_graph(layer_input_np.shape)
                 # check whether dimension is right
                 hessian_shape = int(generate_hessian_op.get_shape()[0])
-                print 'Hessian shape: %d' % hessian_shape
+                print ('Hessian shape: %d' % hessian_shape)
                 weight_shape = net.state_dict()['module.%s.weight' % layer_name].size()
-                print 'Weights shape: %d' % weight_shape[1]
+                print ('Weights shape: %d' % weight_shape[1])
                 assert(hessian_shape == weight_shape[1] + 1) # +1 because of bias 
             elif layer_type == 'C':
                 layer_input_np = layer_input.permute(0, 2, 3, 1).cpu().numpy()
@@ -192,15 +193,15 @@ def generate_hessian(net, trainloader, layer_name, layer_type, \
                                                         net.module.layer_stride[layer_name] * stride_factor)
                 # check whether dimension is right
                 hessian_shape = int(generate_hessian_op.get_shape()[0])
-                print 'Hessian shape: %d' %hessian_shape
+                print ('Hessian shape: %d' %hessian_shape)
                 weight_shape = net.state_dict()['module.%s.weight' %layer_name].size()
                 # print ('Kernel shape: %s' %weight_shape)
                 # print weight_shape
                 kernel_unfold_shape = int(weight_shape[1]) * int(weight_shape[2]) * int(weight_shape[3])
-                print 'Kernel unfold shape: %d' %kernel_unfold_shape
+                print ('Kernel unfold shape: %d' %kernel_unfold_shape)
                 assert(hessian_shape == kernel_unfold_shape + 1)
 
-            print '[%s] %s Graph build complete.'  % (datetime.now(), layer_name)
+            print ('[%s] %s Graph build complete.'  % (datetime.now(), layer_name))
     
         # Initialization finish, begin to calculate
         if layer_type == 'C' or layer_type == 'R':
@@ -217,8 +218,8 @@ def generate_hessian(net, trainloader, layer_name, layer_type, \
             layer_hessian += this_hessian
 
         if batch_idx % freq_moniter == 0:
-            print '[%s] Now finish image No. %d / %d' \
-                %(datetime.now(), batch_idx * batch_size, n_batch_used * batch_size)
+            print ('[%s] Now finish image No. %d / %d' \
+                %(datetime.now(), batch_idx * batch_size, n_batch_used * batch_size))
     
         if batch_idx == n_batch_used:
             break
@@ -257,7 +258,7 @@ def generate_hessian_inv_Woodbury(net, trainloader, layer_name, layer_type, \
         # Construct tf op for convolution and res layer
         if batch_idx == 0:
             if layer_type == 'C' or layer_type == 'R':
-                print '[%s] Now construct patches extraction op for layer %s' %(datetime.now(), layer_name)
+                print ('[%s] Now construct patches extraction op for layer %s' %(datetime.now(), layer_name))
                 layer_input_np = layer_input.permute(0, 2, 3, 1).cpu().numpy()
                 layer_kernel = net.module.layer_kernel[layer_name]
                 layer_stride = net.module.layer_stride[layer_name] * stride_factor
@@ -296,7 +297,7 @@ def generate_hessian_inv_Woodbury(net, trainloader, layer_name, layer_type, \
                     hessian_inv_holder, input_holder, Woodbury_hessian_inv_op = \
                         create_Woodbury_hessian_inv_graph(input_dimension + 1, dataset_size)
             
-            print '[%s] dataset: %d, input dimension: %d' %(datetime.now(), dataset_size, input_dimension)
+            print ('[%s] dataset: %d, input dimension: %d' %(datetime.now(), dataset_size, input_dimension))
         
         # Begin process
         if layer_type == 'F':
@@ -341,8 +342,8 @@ def generate_hessian_inv_Woodbury(net, trainloader, layer_name, layer_type, \
                             hessian_inverse = hessian_inverse - numerator * (1.0 / denominator)
         
         if batch_idx % freq_moniter == 0:
-            print '[%s] Now finish image No. %d / %d' \
-                %(datetime.now(), batch_idx * batch_size, n_batch_used * batch_size)
+            print ('[%s] Now finish image No. %d / %d' \
+                %(datetime.now(), batch_idx * batch_size, n_batch_used * batch_size))
     
         if batch_idx == n_batch_used:
             sess.close()
